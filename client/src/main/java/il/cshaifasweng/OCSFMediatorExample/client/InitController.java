@@ -17,7 +17,7 @@ public class InitController {
         SimpleClient.port = Integer.parseInt(port);
         client = SimpleClient.getClient();
         try {
-            //client.openConnection();
+            client.openConnection();
             System.out.println("Connection Successful!");
         } catch (Exception e){
             throw new RuntimeException("Failed to connect", e);
