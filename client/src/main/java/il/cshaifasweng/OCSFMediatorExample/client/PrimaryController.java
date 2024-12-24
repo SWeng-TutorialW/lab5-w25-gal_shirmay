@@ -31,26 +31,33 @@ public class PrimaryController {
 
 	@FXML
 	void ConnectAndPlay(ActionEvent event) throws IOException {
+		System.out.println("Attempting to connect...");
 		String ip = IP_TextFiled.getText();
 		String port = Port_TextFiled.getText();
 
-		// Initialize the InitController and attempt a connection
+		// Initialize InitController and attempt a connection
 		InitController initController = new InitController(ip, port);
-		initController.connect();
-
-		// If connection is successful, open the secondary window
-		Stage connnectStage = new Stage();
-		Parent parent = App.loadFXML("secondary");
-		if (parent == null) {
-			Alert alert = new Alert(Alert.AlertType.ERROR, "FXML loading error.");
+		try {
+			initController.connect();
+			System.out.println("Connection successful, loading game window...");
+			Stage connnectStage = new Stage();
+			Parent parent = App.loadFXML("secondary");
+			if (parent == null) {
+				Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load the game window.");
+				alert.show();
+			} else {
+				Scene scene = new Scene(parent);
+				connnectStage.setScene(scene);
+				connnectStage.show();
+			}
+		} catch (Exception e) {
+			System.out.println("Error during connection or loading: " + e.getMessage());
+			Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to connect or load the game window.");
 			alert.show();
 		}
-		Scene scene = new Scene(parent);
-		connnectStage.setScene(scene);
-		connnectStage.show();
-		}
+	}
 
-	@FXML
+			@FXML
 	void enterIP(ActionEvent event) {
 	}
 

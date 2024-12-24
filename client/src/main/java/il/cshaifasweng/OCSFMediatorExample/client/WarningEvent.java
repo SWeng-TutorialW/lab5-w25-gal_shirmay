@@ -1,6 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
-
 import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
+
 public class WarningEvent {
 	private Warning warning;
 

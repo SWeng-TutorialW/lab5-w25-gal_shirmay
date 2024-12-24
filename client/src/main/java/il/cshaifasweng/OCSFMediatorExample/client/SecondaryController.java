@@ -1,11 +1,12 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 import java.io.IOException;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -17,24 +18,23 @@ public class SecondaryController {
     private URL location;
 
     @FXML
-    private Button btnBack;
+    private AnchorPane rootPane;
 
     @FXML
     private Label cell00, cell01, cell02, cell10, cell11, cell12,cell20, cell21, cell22;
 
+    @FXML
+    private Label statusLabel;
+
     private boolean isXTurn = true; // Track turns: X or O
     private boolean isMyTurn = false;
+    private String playerRole; // This will store "X" or "O"
 
     @FXML
     private void switchToPrimary() throws IOException {App.setRoot("primary");}
 
     @FXML
-    void backToPrimary(ActionEvent event) throws IOException{
-    }
-
-    @FXML
     void initialize() {
-        assert btnBack != null : "fx:id=\"btnBack\" was not injected: check your FXML file 'secondary.fxml'.";
         assert cell00 != null : "fx:id=\"cell00\" was not injected: check your FXML file 'secondary.fxml'.";
         assert cell01 != null : "fx:id=\"cell01\" was not injected: check your FXML file 'secondary.fxml'.";
         assert cell02 != null : "fx:id=\"cell02\" was not injected: check your FXML file 'secondary.fxml'.";
@@ -46,6 +46,13 @@ public class SecondaryController {
         assert cell22 != null : "fx:id=\"cell22\" was not injected: check your FXML file 'secondary.fxml'.";
 
         EventBus.getDefault().register(this);
+
+        Platform.runLater(() -> {
+            Stage stage = (Stage) rootPane.getScene().getWindow(); // Access the Stage using rootPane
+            stage.setTitle("Tic-Tac-Toe Game"); // Set the window title
+            stage.setOnCloseRequest(event -> EventBus.getDefault().unregister(this)); // Unregister EventBus on window close
+        });
+
         setupCellClickHandler(cell00);
         setupCellClickHandler(cell01);
         setupCellClickHandler(cell02);
@@ -56,24 +63,14 @@ public class SecondaryController {
         setupCellClickHandler(cell21);
         setupCellClickHandler(cell22);
     }
-// the first version - when I run just the client
-//    private void setupCellClickHandler(Label cell) {
-//        cell.setOnMouseClicked(event -> {
-//            if (cell.getText().isEmpty()) { // Only place mark if cell is empty
-//                cell.setText(isXTurn ? "X" : "O");
-//                isXTurn = !isXTurn; // Switch turns
-//            }
-//        });
-//    }
 
-    ////////////////// I CHANGED THE FOLLOWING PART ////////////////////
 
     private void setupCellClickHandler(Label cell) {
         cell.setOnMouseClicked(event -> {
             if (isMyTurn && cell.getText().isEmpty()) {
-                cell.setText("X"); // Update only for demonstration
+                cell.setText(playerRole); // Use the player's role here
                 try {
-                    SimpleClient.client.sendToServer("move " + getCellId(cell));
+                    SimpleClient.client.sendToServer("move " + getCellId(cell) + " " + playerRole);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -97,6 +94,13 @@ public class SecondaryController {
     @Subscribe
     public void onTurnEvent(TurnEvent event) {
         isMyTurn = event.isYourTurn();
+        if (isMyTurn) {
+            System.out.println("Your turn !");
+            statusLabel.setText("Your turn !");
+        } else {
+            System.out.println("Waiting for the other player...");
+            statusLabel.setText("Waiting for the other player...");
+        }
     }
 
     private String getCellId(Label cell) {
@@ -126,9 +130,20 @@ public class SecondaryController {
             default: return null;
         }
     }
-/////////////////////////////////////////////////////////////////////////////
+
+    @Subscribe
+    public void onPlayerEvent(PlayerEvent event) {
+        this.playerRole = event.getPlayerRole();
+        System.out.println("Assigned player role: " + playerRole);
+    }
+
+    @Subscribe
+    public void onGameStatusEvent(GameStatusEvent event) {
+        Platform.runLater(() -> {
+            String status = event.getStatus();
+            System.out.println("Game status: " + status);
+            statusLabel.setText(status);
+            isMyTurn = false; // Disable further moves
+        });
+    }
 }
-
-
-
-

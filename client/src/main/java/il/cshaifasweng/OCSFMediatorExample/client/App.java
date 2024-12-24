@@ -22,7 +22,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
     	EventBus.getDefault().register(this);
-        stage.setTitle(" X , O GAME Demo");
+        stage.setTitle("Tic-Tac-Toe Game");
         scene = new Scene(loadFXML("primary"), 330, 210);
         stage.setScene(scene);
         stage.show();
