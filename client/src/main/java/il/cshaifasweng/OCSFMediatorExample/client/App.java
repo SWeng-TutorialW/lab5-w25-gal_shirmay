@@ -1,5 +1,4 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -8,9 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
-
 import java.io.IOException;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -25,9 +22,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
     	EventBus.getDefault().register(this);
-    	client = SimpleClient.getClient();
-    	client.openConnection();
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        stage.setTitle("Tic-Tac-Toe Game");
+        scene = new Scene(loadFXML("primary"), 330, 210);
         stage.setScene(scene);
         stage.show();
     }
@@ -36,12 +32,11 @@ public class App extends Application {
         scene.setRoot(loadFXML(fxml));
     }
 
-    private static Parent loadFXML(String fxml) throws IOException {
+    static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
-    
-    
+
 
     @Override
 	public void stop() throws Exception {
@@ -62,11 +57,14 @@ public class App extends Application {
         	);
         	alert.show();
     	});
-    	
     }
-
 	public static void main(String[] args) {
         launch();
     }
-
 }
+
+
+// (1:56:13) both of the next lines will be deleted and -  client = SimpleClient.getClient(); and client.openConnection();
+// I should add a new window with labels that user should input the port and the ip (of this computer?)
+// in default, it should  "localhost" and port 3000 + button of "ok" (?) and then those parametres should pass to the constructor of the client
+// this is the part we connect the client
